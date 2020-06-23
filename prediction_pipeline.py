@@ -10,7 +10,7 @@ if __name__=="__main__":
     parser.add_argument('-organism', type=str, choices=['e_coli', 'b_subtilis', 's_cerevisiae', 'y_lipolytica', 'p_putida'])
     parser.add_argument('-num_steps', type=int, default=3)
     parser.add_argument('-output_folder', type=str, default='None')
-    parser.add_argument('-topX', type=int, default=200)
+    parser.add_argument('-topx', type=int, default=200)
     parser.add_argument('-timeout', type=float, default=240.0)
     parser.add_argument('-dont_merge', type=str, default='True')
     parser.add_argument('-num_workers', type=int, default=1)
@@ -42,37 +42,37 @@ if __name__=="__main__":
     if params.output_folder=='None':
         if not os.path.exists('rp2_full_analysis'):
             os.mkdir(os.path.join(os.path.abspath(os.getcwd()), 'rp2_full_analysis'))
-            outfolder = os.path.join(os.path.abspath(os.getcwd()), 'rp2_full_analysis')
-        else:
-            logging.error('The rp2_full_analysis folder already exists, please delete it or point to another folder location')
-            exit(1)
+        outfolder = os.path.join(os.path.abspath(os.getcwd()), 'rp2_full_analysis')
     else:
         if not os.path.exists(params.output_folder):
             os.mkdir(params.output_folder)
-            outfolder = params.output_folder
-        else:
-            logging.error('The path: '+str(params.output_folder)+' already exists, please delete or input a different path')
-            exit(1)
+            outfolder = os.path.abspath(params.output_folder)
+        outfolder = os.path.abspath(params.output_folder)
     ### run the algorithm ###
-    status = deep_rp2.deepRP('target',
-                             params.inchi,
-                             params.num_steps,
-                             params.organism,
-                             outfolder,
-                             params.timeout,
-                             partial_results)
-    if status:
-        logging.info('Deep RetroPath2 has succesfully found a solution finished')
+    if not os.path.exists(os.path.join(outfolder, 'rp_pathways.csv')):
+        status = deep_rp2.deepRP('target',
+                                 params.inchi,
+                                 params.num_steps,
+                                 params.organism,
+                                 outfolder,
+                                 params.timeout,
+                                 partial_results)
+        if status:
+            logging.info('Deep RetroPath2 has succesfully found a solution finished')
+        else:
+            logging.info('Deep RetroPath2 could not find a solution')
+            exit(1)
     else:
-        logging.info('Deep RetroPath2 could not find a solution')
+        logging.info('Already calculated the heterologous pathways using RetroPath2.0')
     #### run the pathway analysis pipeline ####
-    status, error_type = analysis_pipeline.pathwayAnalysis(params.rp2_pathways,
+    status, error_type = analysis_pipeline.pathwayAnalysis(os.path.join(outfolder, 'rp_pathways.csv'),
+                                                           os.path.join(outfolder, 'model.sbml'),
                                                            outfolder,
-                                                           params.topx,
-                                                           params.timeout,
-                                                           dont_merge,
-                                                           params.num_workers,
-                                                           pubchem_search)
+                                                           topx=params.topx,
+                                                           timeout=params.timeout,
+                                                           dont_merge=dont_merge,
+                                                           num_workers=params.num_workers,
+                                                           pubchem_search=pubchem_search)
     if status:
         logging.info('The pipeline successfully ran')
     else:

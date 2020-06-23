@@ -44,6 +44,7 @@ def deepRP(target_name,
         range_gem_sbml = ['models/p_putida_iJN746.sbml']
     else:
         logging.error('Cannot detect the string input: '+str(strain))
+        return False
     range_topx = [1000, 500, 100]
     failed_models = []
     for gem_sbml in range_gem_sbml:

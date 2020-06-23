@@ -38,6 +38,20 @@ Untar the GEM SBML models files:
 tar -xf models.tar.xz
 ```
 
+## Running
+
+### Deep RetroPath2.0
+
+Run RetroPath2.0 looping throught the different available models for a given organism, and reducing complexity if RetroPath2.0 does not find a solution. Use the script deep_rp2.py to run it. Warning that this can take a long time and special attention must be given to the timeout parameter and the allocated RAM usage for the docker image when constructng it.
+
+### Analysis Pipeline
+
+Run the pathway analysis pipeline from the results of RetroPath2.0
+
+### Prediction Pipeline
+
+Combine the above two scripts to predict and analyse the resulting pathways.
+
 ## Versioning
 
 v0.1

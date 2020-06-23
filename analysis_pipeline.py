@@ -21,6 +21,7 @@ logging.basicConfig(
 
 
 def pathwayAnalysis(rp2_pathways,
+                    gem_sbml,
                     path_to_res=None,
                     retrorules_file=None,
                     sinkfile=None,
@@ -78,7 +79,7 @@ def pathwayAnalysis(rp2_pathways,
     path_rpfba = os.path.join(path_to_res, 'rpfba.tar')
     logging.info('gem_sbml: '+str(gem_sbml))
     if not os.path.exists(path_rpfba):
-        run_rpfba.main(path_rpcofactors, 'tar', gem_sbml, path_rpfba, num_workers, str(dont_merge))
+        run_rpfba.main(path_rpcofactors, 'tar', gem_sbml, path_rpfba, num_workers=num_workers, dont_merge=str(dont_merge))
     if not os.path.exists(path_rpfba):
         logging.error('rpFBA did not generate a file')
         return False, 'rpfba'
@@ -129,6 +130,7 @@ def pathwayAnalysis(rp2_pathways,
 if __name__=="__main__":
     parser = argparse.ArgumentParser('Given results by RetroPath2 convert the results to SBML files and perform pathway analysis and ranking')
     parser.add_argument('-rp2_pathways', type=str)
+    parser.add_argument('-gem_sbml', type=str)
     parser.add_argument('-output_folder', type=str, default='None')
     parser.add_argument('-topX', type=int, default=200)
     parser.add_argument('-timeout', type=float, default=240.0)
@@ -168,6 +170,7 @@ if __name__=="__main__":
             exit(1)
     #### run the pathway analysis pipeline ####
     status, error_type = pathwayAnalysis(params.rp2_pathways,
+                                         params.gem_sbml,
                                          outfolder,
                                          params.topx,
                                          params.timeout,
