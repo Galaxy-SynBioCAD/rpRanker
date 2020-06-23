@@ -1,8 +1,8 @@
 import logging
 import os
 import argparse
-import deepRP
-import pathwayAnalysis
+import deep_rp2
+import analysis_pipeline
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser('Run retrosynthesis and pathways analysis pipeline to calculate heterologous pathways to produce a compound of interest in an organism of interest')
@@ -15,7 +15,6 @@ if __name__=="__main__":
     parser.add_argument('-dont_merge', type=str, default='True')
     parser.add_argument('-num_workers', type=int, default=1)
     parser.add_argument('-pubchem_search', type=str, default='False')
-    parser.add_argument('-timeout', type=float, default=240.0)
     parser.add_argument('-partial_results', type=str, default='False')
     params = parser.parse_args()
     if params.dont_merge=='True' or params.dont_merge=='T' or params.dont_merge=='true' or params.dont_merge=='t':
@@ -55,25 +54,25 @@ if __name__=="__main__":
             logging.error('The path: '+str(params.output_folder)+' already exists, please delete or input a different path')
             exit(1)
     ### run the algorithm ###
-    status = deepRP('target',
-                    params.inchi,
-                    params.num_steps,
-                    params.organism,
-                    outfolder,
-                    params.timeout,
-                    partial_retro)
+    status = deep_rp2.deepRP('target',
+                             params.inchi,
+                             params.num_steps,
+                             params.organism,
+                             outfolder,
+                             params.timeout,
+                             partial_results)
     if status:
         logging.info('Deep RetroPath2 has succesfully found a solution finished')
     else:
         logging.info('Deep RetroPath2 could not find a solution')
     #### run the pathway analysis pipeline ####
-    status, error_type = pathwayAnalysis.pathwayAnalysis(params.rp2_pathways,
-                                                         outfolder,
-                                                         params.topx,
-                                                         params.timeout,
-                                                         dont_merge,
-                                                         params.num_workers,
-                                                         pubchem_search)
+    status, error_type = analysis_pipeline.pathwayAnalysis(params.rp2_pathways,
+                                                           outfolder,
+                                                           params.topx,
+                                                           params.timeout,
+                                                           dont_merge,
+                                                           params.num_workers,
+                                                           pubchem_search)
     if status:
         logging.info('The pipeline successfully ran')
     else:

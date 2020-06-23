@@ -4,40 +4,37 @@ cd docker_projects
 ### RetroRules
 git clone https://github.com/Galaxy-SynBioCAD/RetroRules.git
 cd RetroRules
-docker build -t brsynth/retrorules-standalone .
+docker build -t brsynth/retrorules-standalone -f Dockerfile .
 cd ..
 
 ### RetroPath2
-git clone docker build -t brsynth/retropath2-standalone .
+git clone https://github.com/Galaxy-SynBioCAD/RetroPath2.git
 cd RetroPath2
-docker build -t brsynth/retropath2-standalone .
+docker build -t brsynth/retropath2-standalone -f Dockerfile .
 cd ..
 
 ### rp2paths 
-git clone docker build -t brsynth/rp2paths-standalone .
+git clone https://github.com/Galaxy-SynBioCAD/rp2paths.git
 cd rp2paths
-docker build -t brsynth/rp2paths-standalone .
+docker build -t brsynth/rp2paths-standalone -f Dockerfile .
 cd ..
 
 ### rpBase
 git clone https://github.com/Galaxy-SynBioCAD/rpBase.git
-rp rpBase
-docker build -t brsynth/rpbase .
+cd rpBase
+docker build -t brsynth/rpbase -f Dockerfile .
 cd ..
 
 ### rpCache
 git clone https://github.com/Galaxy-SynBioCAD/rpCache.git
 cd rpCache
-docker build -t brsynth/rpcache .
+docker build -t brsynth/rpcache -f Dockerfile .
 cd ..
-
-### rpMakeSource
-git clone https://github.com/Galaxy-SynBioCAD/rpMakeSource.git
 
 ### rpExtractSink
 git clone https://github.com/Galaxy-SynBioCAD/rpExtractSink.git
 cd rpExtractSink
-docker build -t brsynth/rpextractsink-standalone .
+docker build -t brsynth/rpextractsink-standalone -f Dockerfile .
 cd ..
 
 ### rpReader
@@ -49,7 +46,7 @@ cd ..
 ### rpCofactors
 git clone https://github.com/Galaxy-SynBioCAD/rpCofactors.git
 cd rpCofactors
-docker build -t brsynth/rpcofactors-standalone .
+docker build -t brsynth/rpcofactors-standalone -f Dockerfile .
 cd ..
 
 ### rpFBA
@@ -61,16 +58,6 @@ cd ..
 ### rpThermo
 git clone https://github.com/Galaxy-SynBioCAD/rpThermo.git
 cd rpThermo 
-
-if [ ! -f "license.cxl" ]; then
-    echo "license.cxl does not exist. Need Marvin licence for the tool to work."
-fi
-
-
-if ! find . -name 'marvin_linux_*' -printf 1 -quit | grep -q 1
-    echo "Need a local .deb version of the Marvin software"
-fi
-
 docker build -t brsynth/rthermo-standalone -f Dockerfile .
 cd ..
 
@@ -89,7 +76,7 @@ cd ..
 ### rpVisualiser
 git clone https://github.com/Galaxy-SynBioCAD/rpVisualiser.git
 cd rpVisualiser
-docker build -t brsynth/rpvisualiser-standalone:dev .
+docker build -t brsynth/rpvisualiser-standalone .
 cd ..
 
 cd ..
@@ -97,9 +84,11 @@ cd ..
 cp docker_projects/RetroRules/run.py run_retrorules.py
 cp docker_projects/RetroPath2/run.py run_retropath2.py
 cp docker_projects/rp2paths/run.py run_rp2paths.py
-cp docker_projects/rpReader/run.py run_rpreader.py
+cp docker_projects/rpReader/run_rp2.py run_rpreader.py
+cp docker_projects/rpFBA/run.py run_rpfba.py
 cp docker_projects/rpCofactors/run.py run_rpcofactors.py
 cp docker_projects/rpThermo/run.py run_rpthermo.py
 cp docker_projects/rpGlobalScore/run.py run_rpglobalscore.py
 cp docker_projects/rpReport/run.py run_rpreport.py
 cp docker_projects/rpVisualiser/run.py run_rpvisualiser.py
+cp docker_projects/rpExtractSink/run.py run_rpextractsink.py

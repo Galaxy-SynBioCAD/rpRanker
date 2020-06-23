@@ -5,7 +5,7 @@ import shutil
 import csv
 import argparse
 
-import run_rp2
+import run_retropath2
 import run_rpextractsink
 import run_retrorules
 
@@ -89,7 +89,7 @@ def deepRP(target_name,
                         ##########################################################
                         logging.info('#################### RetroPath2 ######################')
                         rp_pathways = os.path.join(tmpOutputFolder, 'rp_pathways.csv')
-                        err_str = run_rp2.main(sinkfile, sourcefile, max_steps, retrorules_file, 'tar', rp_pathways, topx=topx, timeout=int(timeout), partial_retro=partial_retro)
+                        err_str = run_retropath2.main(sinkfile, sourcefile, max_steps, retrorules_file, 'tar', rp_pathways, topx=topx, timeout=int(timeout), partial_retro=partial_retro)
                         if err_str:
                             if 'Source has been found in the sink' in err_str:
                                 failed_models.append(gem_sbml)
@@ -155,7 +155,7 @@ if __name__=="__main__":
                     params.organism,
                     outfolder,
                     params.timeout,
-                    partial_retro)
+                    partial_results)
     if status:
         logging.info('Deep RetroPath2 has succesfully found a solution finished')
     else:

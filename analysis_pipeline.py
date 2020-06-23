@@ -9,7 +9,6 @@ import run_rpreader
 import run_rpcofactors
 import run_rpfba
 import run_rpthermo
-import run_rpfindpathway
 import run_rpglobalscore
 import run_rpreport
 import run_rpvisualiser
@@ -21,7 +20,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S')
 
 
-def pathwayAnalysis(rp2_pathways.
+def pathwayAnalysis(rp2_pathways,
                     path_to_res=None,
                     retrorules_file=None,
                     sinkfile=None,

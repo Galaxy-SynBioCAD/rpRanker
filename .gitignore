@@ -1,1 +1,5 @@
 *.swp
+models/
+__pycache__
+run_r*
+docker_projects/
