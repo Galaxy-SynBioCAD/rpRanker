@@ -58,7 +58,7 @@ cd ..
 ### rpThermo
 git clone https://github.com/Galaxy-SynBioCAD/rpThermo.git
 cd rpThermo 
-docker build -t brsynth/rthermo-standalone -f Dockerfile .
+docker build -t brsynth/rpthermo-standalone -f Dockerfile .
 cd ..
 
 ### rpGlobalScore
@@ -70,7 +70,7 @@ cd ..
 ### rpReport
 git clone https://github.com/Galaxy-SynBioCAD/rpReport.git
 cd rpReport
-docker build -t brsynth/rpglobalscore-standalone -f Dockerfile .
+docker build -t brsynth/rpreport-standalone -f Dockerfile .
 cd ..
 
 ### rpVisualiser

@@ -22,6 +22,7 @@ logging.basicConfig(
 
 def pathwayAnalysis(rp2_pathways,
                     gem_sbml,
+                    max_rp_steps,
                     path_to_res=None,
                     retrorules_file=None,
                     sinkfile=None,
@@ -48,7 +49,7 @@ def pathwayAnalysis(rp2_pathways,
     rp2paths_compounds = os.path.join(path_to_res, 'rp2paths_compounds.csv')
     rp2paths_pathways = os.path.join(path_to_res, 'rp2paths_pathways.csv')
     if not os.path.exists(rp2paths_compounds) and not os.path.exists(rp2paths_pathways):
-        run_rp2paths.main(rp_pathways, rp2paths_pathways, rp2paths_compounds, timeout)
+        run_rp2paths.main(rp_pathways, rp2paths_pathways, rp2paths_compounds, int(timeout))
     if not os.path.exists(rp2paths_compounds) or not os.path.exists(rp2paths_pathways):
         logging.error('rp2paths did not generate files')
         return False, 'rp2paths'
@@ -99,7 +100,7 @@ def pathwayAnalysis(rp2_pathways,
     logging.info('#################### rpGlobalScore ######################')
     path_rpglobalscore = os.path.join(path_to_res, 'rpglobalscore.tar')
     if not os.path.exists(path_rpglobalscore):
-        run_rpglobalscore.main(path_rpthermo, 'tar', path_rpglobalscore, topX=topx)
+        run_rpglobalscore.main(path_rpthermo, 'tar', path_rpglobalscore, topX=topx, max_rp_steps=max_rp_steps)
     if not os.path.exists(path_rpglobalscore):
         logging.error('rpGlobalScore did not generate a file')
         return False, 'rpglobalscore'
@@ -119,7 +120,7 @@ def pathwayAnalysis(rp2_pathways,
     logging.info('#################### rpReport ######################')
     path_rpreport = os.path.join(path_to_res, 'rpreport.csv')
     if not os.path.exists(path_rpreport):
-        run_rpvisualiser.main(path_rpglobalscore, 'tar', path_rpreport)
+        run_rpreport.main(path_rpglobalscore, 'tar', path_rpreport)
     if not os.path.exists(path_rpreport):
         logging.error('rpReport did not generate a file')
         return False, 'rpreport' 
@@ -131,9 +132,10 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser('Given results by RetroPath2 convert the results to SBML files and perform pathway analysis and ranking')
     parser.add_argument('-rp2_pathways', type=str)
     parser.add_argument('-gem_sbml', type=str)
+    parser.add_argument('-max_rp_steps', type=int)
     parser.add_argument('-output_folder', type=str, default='None')
     parser.add_argument('-topX', type=int, default=200)
-    parser.add_argument('-timeout', type=float, default=240.0)
+    parser.add_argument('-timeout', type=int, default=240)
     parser.add_argument('-dont_merge', type=str, default='True')
     parser.add_argument('-num_workers', type=int, default=1)
     parser.add_argument('-pubchem_search', type=str, default='False')

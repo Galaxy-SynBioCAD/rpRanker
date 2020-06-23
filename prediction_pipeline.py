@@ -67,6 +67,7 @@ if __name__=="__main__":
     #### run the pathway analysis pipeline ####
     status, error_type = analysis_pipeline.pathwayAnalysis(os.path.join(outfolder, 'rp_pathways.csv'),
                                                            os.path.join(outfolder, 'model.sbml'),
+                                                           params.num_steps,
                                                            outfolder,
                                                            topx=params.topx,
                                                            timeout=params.timeout,
