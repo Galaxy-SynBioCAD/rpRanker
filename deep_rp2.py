@@ -50,69 +50,66 @@ def deepRP(target_name,
     for gem_sbml in range_gem_sbml:
         for rule_diameters in range_rule_diameters:
             for topx in range_topx:
-                for max_s in reversed(range(in_max_steps)):
-                    max_steps = max_s+1 
-    #for param_pro in param_pros:
+                logging.info('####################################################')
+                logging.info('Trying to predict heterologous pathways for '+str(target_name)+' in '+str(strain))
+                logging.info('Running the following conditions: ')
+                logging.info('GEM SBML: '+str(gem_sbml))
+                logging.info('TopX: '+str(topx))
+                logging.info('Max Steps: '+str(in_max_steps))
+                logging.info('Rule Diameters: '+str(rule_diameters))
+                with tempfile.TemporaryDirectory() as tmpOutputFolder:
+                    if gem_sbml in failed_models:
+                        logging.error('Alrready tried this model and it failed, skipping the model: '+str(failed_models))
+                        continue
+                    ##########################################################
+                    ################### Source File ##########################
+                    ##########################################################
+                    logging.info('#################### Source File  ######################')
+                    sourcefile = os.path.join(tmpOutputFolder, 'source.csv')
+                    with open(sourcefile, 'w') as csvfile:
+                        filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                        filewriter.writerow(['Name', 'InChI'])
+                        filewriter.writerow([target_name, target_inchi])
+                    ##########################################################
+                    ################### Sink File ############################
+                    ##########################################################
+                    logging.info('#################### Sink File  ######################')
+                    sinkfile = os.path.join(tmpOutputFolder, 'sinkfile.csv')
+                    run_rpextractsink.main(gem_sbml, sinkfile)
+                    ##########################################################
+                    ################### RetroRules ###########################
+                    ##########################################################
+                    logging.info('#################### RetroRules ######################')
+                    retrorules_file = os.path.join(tmpOutputFolder, 'rules.tar')
+                    run_retrorules.main(retrorules_file, diameters=rule_diameters)
+                    ##########################################################
+                    ################### RetroPath2 ###########################
+                    ##########################################################
+                    logging.info('#################### RetroPath2 ######################')
+                    rp_pathways = os.path.join(tmpOutputFolder, 'rp_pathways.csv')
+                    err_str = run_retropath2.main(sinkfile, sourcefile, in_max_steps, retrorules_file, 'tar', rp_pathways, topx=topx, timeout=int(timeout), partial_retro=partial_retro)
+                    if err_str:
+                        if 'Source has been found in the sink' in err_str:
+                            failed_models.append(gem_sbml)
+                        #we assume that if you cannot find a solution with a given model then you pass to the next one
+                        if 'RetroPath2.0 has not found any results' in err_str:
+                            failed_models.append(gem_sbml)
+                    logging.info(err_str)
+                    if os.path.exists(rp_pathways):
+                        shutil.copy(sourcefile, os.path.join(path_to_res, 'source.csv'))                    
+                        shutil.copy(sinkfile, os.path.join(path_to_res, 'sinkfile.csv'))                    
+                        shutil.copy(retrorules_file, os.path.join(path_to_res, 'rules.tar'))                    
+                        shutil.copy(rp_pathways, os.path.join(path_to_res, 'rp_pathways.csv'))                    
+                        shutil.copy(gem_sbml, os.path.join(path_to_res, 'model.sbml'))                    
+                        with open(os.path.join(path_to_res, 'rp2_report.txt'), 'w') as rp2_report:
+                            rp2_report.write('Molecule Name: '+str(target_name)+'\n')
+                            rp2_report.write('Molecule InChI: '+str(target_inchi)+'\n')
+                            rp2_report.write('GEM SBML: '+str(gem_sbml.split('/')[-1])+'\n')
+                            rp2_report.write('TopX: '+str(topx)+'\n')
+                            rp2_report.write('Max Steps: '+str(in_max_steps)+'\n')
+                            rp2_report.write('Rule Diameters: '+str(rule_diameters)+'\n')
+                        return True    
                     logging.info('####################################################')
-                    logging.info('Trying to predict heterologous pathways for '+str(target_name)+' in '+str(strain))
-                    logging.info('Running the following conditions: ')
-                    logging.info('GEM SBML: '+str(gem_sbml))
-                    logging.info('TopX: '+str(topx))
-                    logging.info('Max Steps: '+str(max_steps))
-                    logging.info('Rule Diameters: '+str(rule_diameters))
-                    with tempfile.TemporaryDirectory() as tmpOutputFolder:
-                        if gem_sbml in failed_models:
-                            logging.error('Alrready tried this model and it failed, skipping the model: '+str(failed_models))
-                            continue
-                        ##########################################################
-                        ################### Source File ##########################
-                        ##########################################################
-                        logging.info('#################### Source File  ######################')
-                        sourcefile = os.path.join(tmpOutputFolder, 'source.csv')
-                        with open(sourcefile, 'w') as csvfile:
-                            filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                            filewriter.writerow(['Name', 'InChI'])
-                            filewriter.writerow([target_name, target_inchi])
-                        ##########################################################
-                        ################### Sink File ############################
-                        ##########################################################
-                        logging.info('#################### Sink File  ######################')
-                        sinkfile = os.path.join(tmpOutputFolder, 'sinkfile.csv')
-                        run_rpextractsink.main(gem_sbml, sinkfile)
-                        ##########################################################
-                        ################### RetroRules ###########################
-                        ##########################################################
-                        logging.info('#################### RetroRules ######################')
-                        retrorules_file = os.path.join(tmpOutputFolder, 'rules.tar')
-                        run_retrorules.main(retrorules_file, diameters=rule_diameters)
-                        ##########################################################
-                        ################### RetroPath2 ###########################
-                        ##########################################################
-                        logging.info('#################### RetroPath2 ######################')
-                        rp_pathways = os.path.join(tmpOutputFolder, 'rp_pathways.csv')
-                        err_str = run_retropath2.main(sinkfile, sourcefile, max_steps, retrorules_file, 'tar', rp_pathways, topx=topx, timeout=int(timeout), partial_retro=partial_retro)
-                        if err_str:
-                            if 'Source has been found in the sink' in err_str:
-                                failed_models.append(gem_sbml)
-                            #we assume that if you cannot find a solution with a given model then you pass to the next one
-                            if 'RetroPath2.0 has not found any results' in err_str:
-                                failed_models.append(gem_sbml)
-                        logging.info(err_str)
-                        if os.path.exists(rp_pathways):
-                            shutil.copy(sourcefile, os.path.join(path_to_res, 'source.csv'))                    
-                            shutil.copy(sinkfile, os.path.join(path_to_res, 'sinkfile.csv'))                    
-                            shutil.copy(retrorules_file, os.path.join(path_to_res, 'rules.tar'))                    
-                            shutil.copy(rp_pathways, os.path.join(path_to_res, 'rp_pathways.csv'))                    
-                            shutil.copy(gem_sbml, os.path.join(path_to_res, 'model.sbml'))                    
-                            with open(os.path.join(path_to_res, 'rp2_report.txt'), 'w') as rp2_report:
-                                rp2_report.write('Molecule Name: '+str(target_name)+'\n')
-                                rp2_report.write('Molecule InChI: '+str(target_inchi)+'\n')
-                                rp2_report.write('GEM SBML: '+str(gem_sbml.split('/')[-1])+'\n')
-                                rp2_report.write('TopX: '+str(topx)+'\n')
-                                rp2_report.write('Max Steps: '+str(max_steps)+'\n')
-                                rp2_report.write('Rule Diameters: '+str(rule_diameters)+'\n')
-                            return True    
-                        logging.info('####################################################')
     with open(os.path.join(path_to_res, 'rp2_report.txt'), 'w') as rp2_report:
         rp2_report.write('No Solutions\n')
     return False
@@ -158,6 +155,6 @@ if __name__=="__main__":
                     params.timeout,
                     partial_results)
     if status:
-        logging.info('Deep RetroPath2 has succesfully found a solution finished')
+        logging.info('Deep RetroPath2 ran succesfully')
     else:
         logging.info('Deep RetroPath2 could not find a solution')
