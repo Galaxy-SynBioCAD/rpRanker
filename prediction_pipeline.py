@@ -8,15 +8,19 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser('Run retrosynthesis and pathways analysis pipeline to calculate heterologous pathways to produce a compound of interest in an organism of interest')
     parser.add_argument('-inchi', type=str)
     parser.add_argument('-organism', type=str, choices=['e_coli', 'b_subtilis', 's_cerevisiae', 'y_lipolytica', 'p_putida'])
-    parser.add_argument('-num_steps', type=int, default=3)
+    parser.add_argument('-min_num_steps', type=int, default=3)
+    parser.add_argument('-max_num_steps', type=int, default=10)
     parser.add_argument('-output_folder', type=str, default='None')
-    parser.add_argument('-topx', type=int, default=200)
+    parser.add_argument('-number_solutions', type=int, default=200)
     parser.add_argument('-timeout', type=float, default=240.0)
     parser.add_argument('-dont_merge', type=str, default='True')
     parser.add_argument('-num_workers', type=int, default=1)
     parser.add_argument('-pubchem_search', type=str, default='False')
     parser.add_argument('-partial_results', type=str, default='False')
     params = parser.parse_args()
+    if params.max_num_steps<params.min_num_steps:
+        logging.error('min_num_steps ('+str(params.min_num_steps)+') cannot be larger than max_num_steps ('+str(params.max_num_steps)+')')
+        exit(1)
     if params.dont_merge=='True' or params.dont_merge=='T' or params.dont_merge=='true' or params.dont_merge=='t':
         dont_merge = True
     elif params.dont_merge=='False' or params.dont_merge=='F' or params.dont_merge=='false' or params.dont_merge=='f':
@@ -50,13 +54,14 @@ if __name__=="__main__":
         outfolder = os.path.abspath(params.output_folder)
     ### run the algorithm ###
     if not os.path.exists(os.path.join(outfolder, 'rp_pathways.csv')):
-        status = deep_rp2.deepRP('target',
-                                 params.inchi,
-                                 params.num_steps,
-                                 params.organism,
-                                 outfolder,
-                                 params.timeout,
-                                 partial_results)
+        status, max_steps = deep_rp2.deepRP('target',
+                                            params.inchi,
+                                            params.max_num_steps,
+                                            params.min_num_steps,
+                                            params.organism,
+                                            outfolder,
+                                            params.timeout,
+                                            partial_results)
         if status:
             logging.info('Deep RetroPath2 has succesfully found a solution finished')
         else:
@@ -67,9 +72,9 @@ if __name__=="__main__":
     #### run the pathway analysis pipeline ####
     status, error_type = analysis_pipeline.pathwayAnalysis(os.path.join(outfolder, 'rp_pathways.csv'),
                                                            os.path.join(outfolder, 'model.sbml'),
-                                                           params.num_steps,
+                                                           max_steps,
                                                            outfolder,
-                                                           topx=params.topx,
+                                                           number_solutions=params.number_solutions,
                                                            timeout=params.timeout,
                                                            dont_merge=dont_merge,
                                                            num_workers=params.num_workers,

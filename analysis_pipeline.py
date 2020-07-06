@@ -26,7 +26,7 @@ def pathwayAnalysis(rp2_pathways,
                     path_to_res=None,
                     retrorules_file=None,
                     sinkfile=None,
-                    topx=200,
+                    ret_num=10,
                     timeout=99999,
                     dont_merge=True,
                     num_workers=1,
@@ -100,7 +100,7 @@ def pathwayAnalysis(rp2_pathways,
     logging.info('#################### rpGlobalScore ######################')
     path_rpglobalscore = os.path.join(path_to_res, 'rpglobalscore.tar')
     if not os.path.exists(path_rpglobalscore):
-        run_rpglobalscore.main(path_rpthermo, 'tar', path_rpglobalscore, topX=topx, max_rp_steps=max_rp_steps)
+        run_rpglobalscore.main(path_rpthermo, 'tar', path_rpglobalscore, topX=ret_num, max_rp_steps=max_rp_steps)
     if not os.path.exists(path_rpglobalscore):
         logging.error('rpGlobalScore did not generate a file')
         return False, 'rpglobalscore'
@@ -134,7 +134,7 @@ if __name__=="__main__":
     parser.add_argument('-gem_sbml', type=str)
     parser.add_argument('-max_rp_steps', type=int)
     parser.add_argument('-output_folder', type=str, default='None')
-    parser.add_argument('-topX', type=int, default=200)
+    parser.add_argument('-number_solutions', type=int, default=200)
     parser.add_argument('-timeout', type=int, default=240)
     parser.add_argument('-dont_merge', type=str, default='True')
     parser.add_argument('-num_workers', type=int, default=1)
@@ -174,7 +174,7 @@ if __name__=="__main__":
     status, error_type = pathwayAnalysis(params.rp2_pathways,
                                          params.gem_sbml,
                                          outfolder,
-                                         params.topx,
+                                         params.number_solutions,
                                          params.timeout,
                                          dont_merge,
                                          params.num_workers,
