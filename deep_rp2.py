@@ -11,7 +11,7 @@ import run_retrorules
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
+    level=logging.DEBUG,
     datefmt='%Y-%m-%d %H:%M:%S')
 
 
@@ -24,8 +24,7 @@ def deepRP(target_name,
            in_min_steps,
            strain,
            path_to_res,
-           in_min_steps=3,
-           timeout=240.0,
+           timeout=240,
            range_topx=[1000, 500, 100],
            range_rule_diameters=['2,4,6,8,10,12,14,16', '6,10,16']):
     if strain=='e_coli':
@@ -57,7 +56,7 @@ def deepRP(target_name,
                         logging.info('Running the following conditions: ')
                         logging.info('GEM SBML: '+str(gem_sbml))
                         logging.info('TopX: '+str(topx))
-                        logging.info('Max Steps: '+(max_steps))
+                        logging.info('Max Steps: '+str(max_steps))
                         logging.info('Rule Diameters: '+str(rule_diameters))
                         with tempfile.TemporaryDirectory() as tmpOutputFolder:
                             if gem_sbml in failed_models:
@@ -71,7 +70,7 @@ def deepRP(target_name,
                             with open(sourcefile, 'w') as csvfile:
                                 filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                                 filewriter.writerow(['Name', 'InChI'])
-                                filewriter.writerow([target_name, target_inchi])
+                                filewriter.writerow(['target', target_inchi])
                             ##########################################################
                             ################### Sink File ############################
                             ##########################################################
@@ -89,7 +88,15 @@ def deepRP(target_name,
                             ##########################################################
                             logging.info('#################### RetroPath2 ######################')
                             rp_pathways = os.path.join(tmpOutputFolder, 'rp_pathways.csv')
-                            err_str = run_retropath2.main(sinkfile, sourcefile, max_steps, retrorules_file, 'tar', rp_pathways, topx=topx, timeout=int(timeout), partial_retro=is_partial)
+                            logging.debug('sinkfile: '+str(sinkfile))
+                            logging.debug('sourcefile: '+str(sourcefile))
+                            logging.debug('max_steps: '+str(max_steps))
+                            logging.debug('retrorules_file: '+str(retrorules_file))
+                            logging.debug('rp_pathways: '+str(rp_pathways))
+                            logging.debug('topx: '+str(topx))
+                            logging.debug('timeout: '+str(timeout))
+                            logging.debug('is_partial: '+str(is_partial))
+                            err_str = run_retropath2.main(sinkfile, sourcefile, max_steps, retrorules_file, 'tar', rp_pathways, topx=topx, timeout=timeout, partial_retro=is_partial)
                             if err_str:
                                 if 'Source has been found in the sink' in err_str:
                                     failed_models.append(gem_sbml)
