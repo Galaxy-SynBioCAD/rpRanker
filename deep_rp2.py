@@ -46,8 +46,11 @@ def deepRP(target_name,
         logging.error('Cannot detect the string input: '+str(strain))
         return False, 0
     failed_models = []
-    for is_partial in [False, True]:
-        for gem_sbml in range_gem_sbml:
+    for gem_sbml in range_gem_sbml:
+        if gem_sbml in failed_models:
+            logging.error('Alrready tried this model and it failed, skipping the model: '+str(failed_models))
+            continue
+        for is_partial in [False, True]:
             for rule_diameters in range_rule_diameters:
                 for topx in range_topx:
                     for max_steps in reversed(range(in_min_steps, in_max_steps+1)):
@@ -59,9 +62,6 @@ def deepRP(target_name,
                         logging.info('Max Steps: '+str(max_steps))
                         logging.info('Rule Diameters: '+str(rule_diameters))
                         with tempfile.TemporaryDirectory() as tmpOutputFolder:
-                            if gem_sbml in failed_models:
-                                logging.error('Alrready tried this model and it failed, skipping the model: '+str(failed_models))
-                                continue
                             ##########################################################
                             ################### Source File ##########################
                             ##########################################################
